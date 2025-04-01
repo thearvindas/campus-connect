@@ -12,6 +12,8 @@ import Connections from './pages/Connections';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from "@/components/ui/toaster";
+import StudyGroups from '@/pages/StudyGroups';
+import Schedule from '@/pages/Schedule';
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
@@ -63,6 +65,14 @@ const AppRoutes = () => {
           <Route
             path="/connections"
             element={user ? <Connections /> : <Navigate to="/auth" replace />}
+          />
+          <Route
+            path="/study-groups"
+            element={user ? <StudyGroups /> : <Navigate to="/auth" replace />}
+          />
+          <Route
+            path="/schedule"
+            element={user ? <Schedule /> : <Navigate to="/auth" replace />}
           />
         </Routes>
       </main>
