@@ -1,175 +1,126 @@
 import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 const Connections = () => {
-  const [activeTab, setActiveTab] = useState('all');
-
-  // Mock data - will be replaced with real data from backend
-  const connections = [
+  const { toast } = useToast();
+  const [connections, setConnections] = useState([
     {
       id: 1,
-      name: 'John Doe',
-      university: 'Stanford',
-      department: 'Computer Science',
-      status: 'connected',
-      email: 'john.doe@stanford.edu',
-      skills: ['React', 'Node.js'],
-      interests: ['Web Development']
+      name: 'Sarah Chen',
+      faculty: 'Schulich School of Engineering',
+      major: 'Software Engineering',
+      classes: ['ENSF 592', 'CPSC 559'],
+      status: 'pending',
     },
     {
       id: 2,
-      name: 'Jane Smith',
-      university: 'MIT',
-      department: 'Data Science',
-      status: 'pending',
-      email: 'jane.smith@mit.edu',
-      skills: ['Python', 'Machine Learning'],
-      interests: ['AI/ML']
+      name: 'Michael Brown',
+      faculty: 'Faculty of Science',
+      major: 'Computer Science',
+      classes: ['CPSC 559', 'SENG 513'],
+      status: 'connected',
     },
     {
       id: 3,
-      name: 'Mike Johnson',
-      university: 'UC Berkeley',
-      department: 'Software Engineering',
-      status: 'connected',
-      email: 'mike.j@berkeley.edu',
-      skills: ['Java', 'Spring Boot'],
-      interests: ['Backend Development']
-    }
-  ];
+      name: 'Emma Wilson',
+      faculty: 'Haskayne School of Business',
+      major: 'Business Technology Management',
+      classes: ['MGST 655', 'BTMA 601'],
+      status: 'pending',
+    },
+  ]);
 
-  const filteredConnections = connections.filter(connection => {
-    if (activeTab === 'all') return true;
-    return connection.status === activeTab;
-  });
+  const handleAccept = (connectionId) => {
+    setConnections(connections.map(conn => 
+      conn.id === connectionId ? { ...conn, status: 'connected' } : conn
+    ));
+    toast({
+      title: "Connection Accepted",
+      description: "You are now connected!",
+    });
+  };
+
+  const handleDecline = (connectionId) => {
+    setConnections(connections.filter(conn => conn.id !== connectionId));
+    toast({
+      title: "Connection Declined",
+      description: "The connection request has been declined.",
+    });
+  };
+
+  const filterConnections = (status) => {
+    if (status === 'all') return connections;
+    return connections.filter(conn => conn.status === status);
+  };
+
+  const ConnectionCard = ({ connection }) => (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex justify-between items-start">
+          <div className="space-y-2">
+            <h3 className="font-semibold">{connection.name}</h3>
+            <p className="text-sm text-muted-foreground">{connection.faculty}</p>
+            <p className="text-sm text-muted-foreground">{connection.major}</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {connection.classes.map((className) => (
+                <Badge key={className} variant="outline">{className}</Badge>
+              ))}
+            </div>
+          </div>
+          {connection.status === 'pending' && (
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => handleAccept(connection.id)}
+              >
+                Accept
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => handleDecline(connection.id)}
+              >
+                Decline
+              </Button>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white shadow rounded-lg">
-          {/* Header */}
-          <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-gray-900">My Connections</h1>
-          </div>
+    <div className="space-y-8">
+      <h1 className="text-3xl font-bold">My Connections</h1>
+      
+      <Tabs defaultValue="all" className="w-full">
+        <TabsList>
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="connected">Connected</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+        </TabsList>
 
-          {/* Tab Navigation */}
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8 px-6">
-              <button
-                onClick={() => setActiveTab('all')}
-                className={`${
-                  activeTab === 'all'
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setActiveTab('connected')}
-                className={`${
-                  activeTab === 'connected'
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-              >
-                Connected
-              </button>
-              <button
-                onClick={() => setActiveTab('pending')}
-                className={`${
-                  activeTab === 'pending'
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-              >
-                Pending
-              </button>
-            </nav>
-          </div>
+        <TabsContent value="all" className="space-y-4 mt-6">
+          {filterConnections('all').map(connection => (
+            <ConnectionCard key={connection.id} connection={connection} />
+          ))}
+        </TabsContent>
 
-          {/* Connections List */}
-          <div className="divide-y divide-gray-200">
-            {filteredConnections.map((connection) => (
-              <div key={connection.id} className="px-4 py-5 sm:px-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">{connection.name}</h3>
-                    <p className="text-sm text-gray-500">
-                      {connection.university} - {connection.department}
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    {connection.status === 'connected' && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Connected
-                      </span>
-                    )}
-                    {connection.status === 'pending' && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        Pending
-                      </span>
-                    )}
-                  </div>
-                </div>
+        <TabsContent value="connected" className="space-y-4 mt-6">
+          {filterConnections('connected').map(connection => (
+            <ConnectionCard key={connection.id} connection={connection} />
+          ))}
+        </TabsContent>
 
-                <div className="mt-4">
-                  <div className="flex flex-wrap gap-2">
-                    {connection.skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-2">
-                  <div className="flex flex-wrap gap-2">
-                    {connection.interests.map((interest) => (
-                      <span
-                        key={interest}
-                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800"
-                      >
-                        {interest}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {connection.status === 'connected' && (
-                  <div className="mt-4">
-                    <a
-                      href={`mailto:${connection.email}`}
-                      className="text-sm text-indigo-600 hover:text-indigo-900"
-                    >
-                      {connection.email}
-                    </a>
-                  </div>
-                )}
-
-                {connection.status === 'pending' && (
-                  <div className="mt-4 flex justify-end space-x-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Decline
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Accept
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+        <TabsContent value="pending" className="space-y-4 mt-6">
+          {filterConnections('pending').map(connection => (
+            <ConnectionCard key={connection.id} connection={connection} />
+          ))}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

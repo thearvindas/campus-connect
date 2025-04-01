@@ -1,51 +1,70 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import LoginForm from '../components/auth/LoginForm';
 import RegisterForm from '../components/auth/RegisterForm';
+import { motion } from "framer-motion";
 
 const Auth = () => {
-  const [activeTab, setActiveTab] = useState('login');
-
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Welcome to CampusConnect
-        </h2>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {/* Tab Navigation */}
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => setActiveTab('login')}
-                className={`${
-                  activeTab === 'login'
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-              >
-                Login
-              </button>
-              <button
-                onClick={() => setActiveTab('signup')}
-                className={`${
-                  activeTab === 'signup'
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-              >
-                Sign Up
-              </button>
-            </nav>
-          </div>
-
-          {/* Tab Content */}
-          <div className="mt-6">
-            {activeTab === 'login' ? <LoginForm /> : <RegisterForm />}
-          </div>
+    <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
+        <div className="absolute inset-0 bg-primary/90" />
+        <div className="relative z-20 flex items-center text-lg font-medium">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="mr-2 h-6 w-6"
+          >
+            <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
+          </svg>
+          CampusConnect
         </div>
+        <div className="relative z-20 mt-auto">
+          <blockquote className="space-y-2">
+            <p className="text-lg">
+              "Connect with fellow students, share knowledge, and build meaningful academic relationships."
+            </p>
+          </blockquote>
+        </div>
+      </div>
+      <div className="lg:p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]"
+        >
+          <Card className="border-none shadow-none">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold tracking-tight">
+                Welcome back
+              </CardTitle>
+              <CardDescription>
+                Sign in to your account or create a new one
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Tabs defaultValue="login" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="login">Login</TabsTrigger>
+                  <TabsTrigger value="register">Register</TabsTrigger>
+                </TabsList>
+                <TabsContent value="login">
+                  <LoginForm />
+                </TabsContent>
+                <TabsContent value="register">
+                  <RegisterForm />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );

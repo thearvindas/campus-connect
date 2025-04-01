@@ -9,6 +9,9 @@ import ProfileView from './pages/ProfileView';
 import ProfileEdit from './pages/ProfileEdit';
 import FindPartners from './pages/FindPartners';
 import Connections from './pages/Connections';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from "@/components/ui/toaster";
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
@@ -16,22 +19,29 @@ const AppRoutes = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <>
-      <Navbar />
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
+      {user && <Navbar />}
+      <main className="container mx-auto py-6 px-4 space-y-8">
         <Routes>
           {/* Public routes */}
-          <Route path="/auth" element={!user ? <Auth /> : <Navigate to="/" replace />} />
+          <Route 
+            path="/auth" 
+            element={!user ? <Auth /> : <Navigate to="/home" replace />} 
+          />
           
           {/* Protected routes */}
           <Route
             path="/"
+            element={user ? <Navigate to="/home" replace /> : <Navigate to="/auth" replace />}
+          />
+          <Route
+            path="/home"
             element={user ? <Home /> : <Navigate to="/auth" replace />}
           />
           <Route
@@ -55,18 +65,21 @@ const AppRoutes = () => {
             element={user ? <Connections /> : <Navigate to="/auth" replace />}
           />
         </Routes>
-      </div>
-    </>
+      </main>
+      <Toaster />
+    </div>
   );
 };
 
 const App = () => {
   return (
-    <AuthProvider>
-      <Router>
-        <AppRoutes />
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 

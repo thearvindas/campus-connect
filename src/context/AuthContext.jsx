@@ -1,90 +1,71 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext({});
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Check for stored user data
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  // Mock authentication for now
+  const signIn = async (email, password) => {
+    setLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setUser({ id: '1', email });
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  };
 
   const register = async (email, password, name) => {
+    setLoading(true);
     try {
-      // Create a unique user ID
-      const userId = `user_${Date.now()}`;
-      
-      // Create user object
-      const userData = {
-        id: userId,
-        name,
-        email,
-        createdAt: new Date().toISOString()
-      };
-
-      // Store user data in localStorage
-      localStorage.setItem('currentUser', JSON.stringify(userData));
-      
-      // Update state
-      setUser(userData);
-      
-      return userData;
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const newUser = { id: '1', email, name };
+      setUser(newUser);
+      return newUser;
     } catch (error) {
-      console.error('Registration error:', error);
-      throw new Error('Failed to create account');
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const login = async (email, password) => {
+  const signOut = async () => {
+    setLoading(true);
     try {
-      // For demo purposes, we'll just create a new user
-      const userId = `user_${Date.now()}`;
-      const userData = {
-        id: userId,
-        name: email.split('@')[0], // Use email prefix as name for demo
-        email,
-        createdAt: new Date().toISOString()
-      };
-
-      localStorage.setItem('currentUser', JSON.stringify(userData));
-      setUser(userData);
-      
-      return userData;
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setUser(null);
     } catch (error) {
-      console.error('Login error:', error);
-      throw new Error('Invalid email or password');
+      throw error;
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('currentUser');
-    setUser(null);
   };
 
   const value = {
     user,
     loading,
+    signIn,
+    signOut,
     register,
-    login,
-    logout
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
-};
+}
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

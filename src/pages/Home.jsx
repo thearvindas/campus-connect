@@ -1,152 +1,96 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useAuth } from '@/context/AuthContext';
 
 const Home = () => {
-  // Mock data - will be replaced with real data later
-  const profileCompletion = 75;
-  const recentConnections = [
-    { id: 1, name: 'John Doe', major: 'Computer Science', university: 'Stanford' },
-    { id: 2, name: 'Jane Smith', major: 'Data Science', university: 'MIT' },
-    { id: 3, name: 'Mike Johnson', major: 'Software Engineering', university: 'UC Berkeley' }
+  const { user } = useAuth();
+
+  const stats = [
+    { label: 'Profile Completion', value: '80%' },
+    { label: 'Active Connections', value: '12' },
+    { label: 'Pending Requests', value: '3' },
   ];
 
-  const recommendations = [
-    { id: 1, name: 'Sarah Wilson', matchScore: 95, skills: ['React', 'Node.js'], interests: ['Web Development'] },
-    { id: 2, name: 'Tom Brown', matchScore: 88, skills: ['Python', 'Machine Learning'], interests: ['AI/ML'] },
-    { id: 3, name: 'Emma Davis', matchScore: 82, skills: ['UI/UX Design'], interests: ['Web Development'] }
+  const recentActivity = [
+    { type: 'connection', name: 'Sarah Chen', action: 'accepted your connection request', time: '2 hours ago' },
+    { type: 'match', name: 'Alex Kim', action: 'was matched with you for CPSC 559', time: '5 hours ago' },
+    { type: 'request', name: 'Jordan Lee', action: 'sent you a connection request', time: '1 day ago' },
+  ];
+
+  const suggestedPartners = [
+    { name: 'Emma Wilson', major: 'Computer Science', commonClasses: ['CPSC 559', 'SENG 513'] },
+    { name: 'Michael Brown', major: 'Software Engineering', commonClasses: ['ENSF 592'] },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Profile Summary */}
-        <div className="bg-white shadow rounded-lg mb-6">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Your Profile
-                </h3>
-                <div className="mt-2">
-                  <div className="relative pt-1">
-                    <div className="flex mb-2 items-center justify-between">
-                      <div>
-                        <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-200">
-                          Profile Completion
-                        </span>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-xs font-semibold inline-block text-indigo-600">
-                          {profileCompletion}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-indigo-200">
-                      <div
-                        style={{ width: `${profileCompletion}%` }}
-                        className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500"
-                      ></div>
-                    </div>
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Welcome back, {user?.name || 'Student'}</h1>
+        <Button asChild>
+          <Link to="/find-partners">Find Partners</Link>
+        </Button>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        {stats.map((stat, index) => (
+          <Card key={index}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {stat.label}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Your latest interactions and updates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-center space-x-4">
+                  <div>
+                    <p className="text-sm font-medium">{activity.name}</p>
+                    <p className="text-sm text-muted-foreground">{activity.action}</p>
+                    <p className="text-xs text-muted-foreground">{activity.time}</p>
                   </div>
                 </div>
-              </div>
-              <Link
-                to="/profile/edit"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-              >
-                Edit Profile
-              </Link>
+              ))}
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Recent Connections */}
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Recent Connections
-              </h3>
-              <div className="mt-4 space-y-4">
-                {recentConnections.map((connection) => (
-                  <div
-                    key={connection.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{connection.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {connection.major} at {connection.university}
-                      </p>
-                    </div>
-                    <Link
-                      to={`/profile/${connection.id}`}
-                      className="text-sm text-indigo-600 hover:text-indigo-900"
-                    >
-                      View Profile
-                    </Link>
+        <Card>
+          <CardHeader>
+            <CardTitle>Suggested Partners</CardTitle>
+            <CardDescription>People you might want to connect with</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {suggestedPartners.map((partner, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">{partner.name}</p>
+                    <p className="text-sm text-muted-foreground">{partner.major}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Common classes: {partner.commonClasses.join(', ')}
+                    </p>
                   </div>
-                ))}
-              </div>
-              <div className="mt-4">
-                <Link
-                  to="/connections"
-                  className="text-sm text-indigo-600 hover:text-indigo-900"
-                >
-                  View all connections →
-                </Link>
-              </div>
+                  <Button variant="outline" size="sm">Connect</Button>
+                </div>
+              ))}
             </div>
-          </div>
-
-          {/* Recommendations */}
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Recommended Partners
-              </h3>
-              <div className="mt-4 space-y-4">
-                {recommendations.map((recommendation) => (
-                  <div
-                    key={recommendation.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{recommendation.name}</p>
-                      <p className="text-sm text-gray-500">
-                        Match Score: {recommendation.matchScore}%
-                      </p>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {recommendation.skills.map((skill) => (
-                          <span
-                            key={skill}
-                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <Link
-                      to={`/profile/${recommendation.id}`}
-                      className="text-sm text-indigo-600 hover:text-indigo-900"
-                    >
-                      View Profile
-                    </Link>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4">
-                <Link
-                  to="/find-partners"
-                  className="text-sm text-indigo-600 hover:text-indigo-900"
-                >
-                  Find more partners →
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

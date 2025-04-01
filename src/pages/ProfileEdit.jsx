@@ -1,210 +1,228 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
+import { X } from "lucide-react";
 
 const ProfileEdit = () => {
-  const [formData, setFormData] = useState({
-    university: 'Stanford',
-    department: 'Computer Science',
-    yearOfStudy: '3',
-    bio: 'Passionate about web development and machine learning. Looking for study partners for upcoming hackathons and projects.',
-    skills: [
-      { name: 'React', proficiency: 'Advanced' },
-      { name: 'Node.js', proficiency: 'Intermediate' },
-      { name: 'Python', proficiency: 'Advanced' },
-      { name: 'Machine Learning', proficiency: 'Intermediate' }
-    ],
-    interests: [
-      'Web Development',
-      'AI/ML',
-      'Data Science',
-      'Mobile Development'
-    ]
-  });
-
-  const [selectedSkills, setSelectedSkills] = useState(formData.skills.map(s => s.name));
-  const [selectedInterests, setSelectedInterests] = useState(formData.interests);
-
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const skills = [
     'JavaScript', 'Python', 'Java', 'C++', 'React', 'Node.js', 'SQL',
-    'Machine Learning', 'Data Analysis', 'UI/UX Design', 'Project Management'
+    'Machine Learning', 'Data Analysis', 'UI/UX Design', 'Project Management',
+    'Database Management', 'Cloud Computing', 'DevOps', 'System Design',
+    'Agile Methodologies', 'Version Control', 'API Development', 'Testing',
+    'Security', 'Mobile Development', 'Web Development', 'Backend Development',
+    'Frontend Development', 'Full Stack Development', 'Data Structures',
+    'Algorithms', 'Object-Oriented Programming', 'Functional Programming',
+    'RESTful APIs', 'GraphQL', 'Docker', 'Kubernetes', 'CI/CD',
+    'Microservices Architecture', 'Blockchain', 'IoT', 'AR/VR',
+    'Game Development', 'Natural Language Processing', 'Computer Vision'
   ];
 
   const interests = [
     'Web Development', 'Mobile Development', 'AI/ML', 'Data Science',
     'Cybersecurity', 'Cloud Computing', 'Game Development', 'IoT',
-    'Blockchain', 'DevOps', 'UI/UX Design'
+    'Blockchain', 'DevOps', 'UI/UX Design', 'Research Collaborations',
+    'Hackathon Partners', 'Study Groups', 'Technical Skills Exchange',
+    'Project Collaboration', 'Code Review', 'Pair Programming',
+    'Mentorship', 'Career Development', 'Industry Networking',
+    'Open Source Contributions', 'Technical Writing', 'Public Speaking',
+    'Leadership', 'Innovation', 'Entrepreneurship', 'Social Impact',
+    'Environmental Sustainability', 'Healthcare Technology',
+    'Financial Technology', 'Educational Technology', 'Smart Cities',
+    'Digital Transformation', 'Emerging Technologies'
   ];
 
-  const proficiencyLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+  const [profile, setProfile] = useState({
+    name: '',
+    faculty: '',
+    major: '',
+    currentClass: '',
+    classes: [],
+    skills: [],
+    interests: []
+  });
+
+  const handleAddClass = () => {
+    if (profile.currentClass.trim()) {
+      setProfile(prev => ({
+        ...prev,
+        classes: [...prev.classes, prev.currentClass.trim()],
+        currentClass: ''
+      }));
+    }
+  };
+
+  const handleRemoveClass = (className) => {
+    setProfile(prev => ({
+      ...prev,
+      classes: prev.classes.filter(c => c !== className)
+    }));
+  };
 
   const handleSkillToggle = (skill) => {
-    setSelectedSkills(prev => {
-      if (prev.includes(skill)) {
-        return prev.filter(s => s !== skill);
-      }
-      return [...prev, skill];
-    });
+    setProfile(prev => ({
+      ...prev,
+      skills: prev.skills.includes(skill)
+        ? prev.skills.filter(s => s !== skill)
+        : [...prev.skills, skill]
+    }));
   };
 
   const handleInterestToggle = (interest) => {
-    setSelectedInterests(prev => {
-      if (prev.includes(interest)) {
-        return prev.filter(i => i !== interest);
-      }
-      return [...prev, interest];
-    });
-  };
-
-  const handleProficiencyChange = (skill, proficiency) => {
-    setFormData(prev => ({
+    setProfile(prev => ({
       ...prev,
-      skills: prev.skills.map(s =>
-        s.name === skill ? { ...s, proficiency } : s
-      )
+      interests: prev.interests.includes(interest)
+        ? prev.interests.filter(i => i !== interest)
+        : [...prev.interests, interest]
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
+    // Here you would typically save the profile data
+    toast({
+      title: "Profile Updated",
+      description: "Your profile has been successfully updated.",
+    });
+    navigate('/profile');
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">Edit Profile</h1>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="university" className="block text-sm font-medium text-gray-700">
-                  University
-                </label>
-                <input
-                  type="text"
-                  id="university"
-                  value={formData.university}
-                  onChange={(e) => setFormData({ ...formData, university: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  required
-                />
-              </div>
+    <div className="space-y-8">
+      <h1 className="text-3xl font-bold">Edit Profile</h1>
 
-              <div>
-                <label htmlFor="department" className="block text-sm font-medium text-gray-700">
-                  Department
-                </label>
-                <input
-                  type="text"
-                  id="department"
-                  value={formData.department}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  required
-                />
-              </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={profile.name}
+                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                placeholder="Your full name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="faculty">Faculty</Label>
+              <Input
+                id="faculty"
+                value={profile.faculty}
+                onChange={(e) => setProfile({ ...profile, faculty: e.target.value })}
+                placeholder="e.g., Schulich School of Engineering"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="major">Major</Label>
+              <Input
+                id="major"
+                value={profile.major}
+                onChange={(e) => setProfile({ ...profile, major: e.target.value })}
+                placeholder="e.g., Software Engineering"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-              <div>
-                <label htmlFor="yearOfStudy" className="block text-sm font-medium text-gray-700">
-                  Year of Study
-                </label>
-                <select
-                  id="yearOfStudy"
-                  value={formData.yearOfStudy}
-                  onChange={(e) => setFormData({ ...formData, yearOfStudy: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  required
+        <Card>
+          <CardHeader>
+            <CardTitle>Classes</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                value={profile.currentClass}
+                onChange={(e) => setProfile({ ...profile, currentClass: e.target.value })}
+                placeholder="Add a class (e.g., CPSC 559)"
+                onKeyPress={(e) => e.key === 'Enter' && handleAddClass()}
+              />
+              <Button 
+                type="button"
+                onClick={handleAddClass}
+              >
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {profile.classes.map((item) => (
+                <Badge 
+                  key={item} 
+                  variant="secondary"
+                  className="flex items-center gap-1"
                 >
-                  <option value="1">First Year</option>
-                  <option value="2">Second Year</option>
-                  <option value="3">Third Year</option>
-                  <option value="4">Fourth Year</option>
-                  <option value="5">Graduate</option>
-                </select>
-              </div>
+                  {item}
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => handleRemoveClass(item)}
+                  />
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-              <div>
-                <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
-                  Bio
-                </label>
-                <textarea
-                  id="bio"
-                  rows={3}
-                  value={formData.bio}
-                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Skills
-                </label>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {skills.map((skill) => (
-                    <div key={skill} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedSkills.includes(skill)}
-                        onChange={() => handleSkillToggle(skill)}
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                      />
-                      <label className="text-sm text-gray-700">{skill}</label>
-                      {selectedSkills.includes(skill) && (
-                        <select
-                          value={formData.skills.find(s => s.name === skill)?.proficiency || 'Intermediate'}
-                          onChange={(e) => handleProficiencyChange(skill, e.target.value)}
-                          className="ml-2 text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                          {proficiencyLevels.map((level) => (
-                            <option key={level} value={level}>
-                              {level}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
-                  ))}
+        <Card>
+          <CardHeader>
+            <CardTitle>Skills</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto p-2 border rounded-md">
+              {skills.map((skill) => (
+                <div key={skill} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={skill}
+                    checked={profile.skills.includes(skill)}
+                    onCheckedChange={() => handleSkillToggle(skill)}
+                  />
+                  <Label htmlFor={skill} className="text-sm">{skill}</Label>
                 </div>
-              </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Interests
-                </label>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {interests.map((interest) => (
-                    <label key={interest} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedInterests.includes(interest)}
-                        onChange={() => handleInterestToggle(interest)}
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                      />
-                      <span className="text-sm text-gray-700">{interest}</span>
-                    </label>
-                  ))}
+        <Card>
+          <CardHeader>
+            <CardTitle>Interests</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto p-2 border rounded-md">
+              {interests.map((interest) => (
+                <div key={interest} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={interest}
+                    checked={profile.interests.includes(interest)}
+                    onCheckedChange={() => handleInterestToggle(interest)}
+                  />
+                  <Label htmlFor={interest} className="text-sm">{interest}</Label>
                 </div>
-              </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
+        <div className="flex justify-end gap-4">
+          <Button 
+            type="button" 
+            variant="outline"
+            onClick={() => navigate('/profile')}
+          >
+            Cancel
+          </Button>
+          <Button type="submit">Save Changes</Button>
         </div>
-      </div>
+      </form>
     </div>
   );
 };

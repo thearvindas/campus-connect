@@ -1,116 +1,158 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
-  const { register } = useAuth();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [error, setError] = useState('');
+  const { register: registerUser } = useAuth();
+  const { toast } = useToast();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting }
+  } = useForm();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const password = watch("password");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
+  const onSubmit = async (data) => {
     try {
-      await register(formData.email, formData.password, formData.name);
+      await registerUser(data.email, data.password, data.name);
+      toast({
+        title: "Success",
+        description: "Account created successfully!",
+      });
       navigate('/profile-setup');
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.message || 'Failed to create account');
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err.message || 'Failed to create account',
+      });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-          Name
-        </label>
-        <input
-          type="text"
+    <motion.form
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4"
+    >
+      <div className="space-y-2">
+        <Label htmlFor="name">Full Name</Label>
+        <Input
           id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          type="text"
+          placeholder="John Doe"
+          {...register("name", {
+            required: "Name is required",
+            minLength: {
+              value: 2,
+              message: "Name must be at least 2 characters"
+            }
+          })}
         />
+        {errors.name && (
+          <p className="text-sm text-destructive">{errors.name.message}</p>
+        )}
       </div>
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email
-        </label>
-        <input
-          type="email"
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
           id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          type="email"
+          placeholder="m@example.com"
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "Invalid email address"
+            }
+          })}
         />
+        {errors.email && (
+          <p className="text-sm text-destructive">{errors.email.message}</p>
+        )}
       </div>
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-          Password
-        </label>
-        <input
-          type="password"
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
           id="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-          Confirm Password
-        </label>
-        <input
           type="password"
-          id="confirmPassword"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          {...register("password", {
+            required: "Password is required",
+            minLength: {
+              value: 6,
+              message: "Password must be at least 6 characters"
+            }
+          })}
         />
+        {errors.password && (
+          <p className="text-sm text-destructive">{errors.password.message}</p>
+        )}
       </div>
 
-      {error && (
-        <div className="text-red-600 text-sm">{error}</div>
-      )}
+      <div className="space-y-2">
+        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          {...register("confirmPassword", {
+            required: "Please confirm your password",
+            validate: value =>
+              value === password || "The passwords do not match"
+          })}
+        />
+        {errors.confirmPassword && (
+          <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+        )}
+      </div>
 
-      <button
+      <Button
         type="submit"
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        className="w-full"
+        disabled={isSubmitting}
       >
-        Sign Up
-      </button>
-    </form>
+        {isSubmitting ? (
+          <div className="flex items-center gap-2">
+            <svg
+              className="animate-spin h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+            Creating account...
+          </div>
+        ) : (
+          'Create Account'
+        )}
+      </Button>
+    </motion.form>
   );
 };
 
