@@ -81,6 +81,9 @@ CREATE POLICY "Users can create study sessions" ON study_sessions
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON profiles;
 DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON profiles;
 DROP POLICY IF EXISTS "Enable update for users based on id" ON profiles;
+DROP POLICY IF EXISTS "Profiles are viewable by everyone" ON profiles;
+DROP POLICY IF EXISTS "Users can create their own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON profiles;
 
 -- Create new policies for profiles
 CREATE POLICY "Profiles are viewable by everyone"
@@ -89,7 +92,7 @@ USING (true);
 
 CREATE POLICY "Users can create their own profile"
 ON profiles FOR INSERT
-WITH CHECK (auth.uid() IS NOT NULL);
+WITH CHECK (auth.uid() = id);
 
 CREATE POLICY "Users can update their own profile"
 ON profiles FOR UPDATE
