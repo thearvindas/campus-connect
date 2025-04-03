@@ -29,19 +29,17 @@ export function AuthProvider({ children }) {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: {
-            full_name: name,
-          },
-        },
       });
 
       if (authError) throw authError;
 
-      // Create the profile
+      // Wait a moment for the session to be established
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Create the profile using the service role key
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert([
+        .upsert([
           {
             id: authData.user.id,
             email: email,
@@ -49,8 +47,9 @@ export function AuthProvider({ children }) {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
-        ])
-        .select();
+        ], {
+          onConflict: 'id'
+        });
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
