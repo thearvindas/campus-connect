@@ -14,6 +14,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from "@/components/ui/toaster";
 import StudyGroups from '@/pages/StudyGroups';
 import Schedule from '@/pages/Schedule';
+import Landing from '@/pages/Landing';
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
@@ -29,22 +30,22 @@ const AppRoutes = () => {
   return (
     <div className="min-h-screen bg-background">
       {user && <Navbar />}
-      <main className="container mx-auto py-6 px-4 space-y-8">
+      <main className={user ? "container mx-auto py-6 px-4 space-y-8" : ""}>
         <Routes>
           {/* Public routes */}
           <Route 
             path="/auth" 
             element={!user ? <Auth /> : <Navigate to="/home" replace />} 
           />
+          <Route
+            path="/"
+            element={user ? <Navigate to="/home" replace /> : <Landing />}
+          />
           
           {/* Protected routes */}
           <Route
-            path="/"
-            element={user ? <Navigate to="/home" replace /> : <Navigate to="/auth" replace />}
-          />
-          <Route
             path="/home"
-            element={user ? <Home /> : <Navigate to="/auth" replace />}
+            element={user ? <Home /> : <Navigate to="/" replace />}
           />
           <Route
             path="/profile-setup"
