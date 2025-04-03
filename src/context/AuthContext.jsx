@@ -25,37 +25,21 @@ export function AuthProvider({ children }) {
 
   const register = async (email, password, name) => {
     try {
-      // Sign up the user
+      // Only sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: name
+          }
+        }
       });
 
       if (authError) throw authError;
 
-      // Wait a moment for the session to be established
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Create the profile using the service role key
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert([
-          {
-            id: authData.user.id,
-            email: email,
-            full_name: name,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        ], {
-          onConflict: 'id'
-        });
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        throw new Error('Failed to create profile. Please try again.');
-      }
-
+      // Set the user in state
+      setUser(authData.user);
       return { user: authData.user, session: authData.session };
     } catch (error) {
       throw error;
@@ -99,9 +83,7 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const isEmailConfirmed = () => {
-    return user?.email_confirmed_at || user?.confirmed_at;
-  };
+  const isEmailConfirmed = () => true;
 
   const value = {
     user,

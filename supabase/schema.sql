@@ -41,7 +41,9 @@ CREATE TABLE profiles (
   id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   full_name TEXT,
+  university TEXT,
   major TEXT,
+  year_of_study TEXT,
   courses TEXT[] DEFAULT '{}',
   study_interests TEXT[] DEFAULT '{}',
   availability JSONB,
@@ -109,4 +111,18 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER handle_profiles_updated_at
 BEFORE UPDATE ON profiles
 FOR EACH ROW
-EXECUTE PROCEDURE handle_updated_at(); 
+EXECUTE PROCEDURE handle_updated_at();
+
+-- Add new columns to profiles table if they don't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                  WHERE table_name = 'profiles' AND column_name = 'university') THEN
+        ALTER TABLE profiles ADD COLUMN university TEXT;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                  WHERE table_name = 'profiles' AND column_name = 'year_of_study') THEN
+        ALTER TABLE profiles ADD COLUMN year_of_study TEXT;
+    END IF;
+END $$; 

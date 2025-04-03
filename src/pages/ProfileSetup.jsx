@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 const ProfileSetup = () => {
+  const { user, updateUserProfile } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const [formData, setFormData] = useState({
     university: '',
     major: '',
@@ -12,6 +20,7 @@ const ProfileSetup = () => {
 
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [selectedInterests, setSelectedInterests] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const skills = [
     'JavaScript', 'Python', 'Java', 'C++', 'React', 'Node.js', 'SQL',
@@ -42,10 +51,68 @@ const ProfileSetup = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+
+    try {
+      const profileData = {
+        id: user.id,
+        email: user.email,
+        full_name: user.user_metadata?.full_name || '',
+        major: formData.major,
+        courses: selectedSkills,
+        study_interests: selectedInterests,
+        bio: formData.bio || '',
+        updated_at: new Date().toISOString()
+      };
+
+      // First check if profile exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (!existingProfile) {
+        // Create new profile
+        const { error: createError } = await supabase
+          .from('profiles')
+          .insert([profileData]);
+
+        if (createError) {
+          console.error('Create error:', createError);
+          throw createError;
+        }
+      } else {
+        // Update existing profile
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update(profileData)
+          .eq('id', user.id);
+
+        if (updateError) {
+          console.error('Update error:', updateError);
+          throw updateError;
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully!",
+      });
+
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to update profile. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -172,9 +239,10 @@ const ProfileSetup = () => {
               <div>
                 <button
                   type="submit"
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  disabled={isSubmitting}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Complete Profile
+                  {isSubmitting ? 'Saving...' : 'Complete Profile'}
                 </button>
               </div>
             </form>

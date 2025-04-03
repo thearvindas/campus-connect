@@ -27,10 +27,10 @@ const RegisterForm = () => {
       
       if (user) {
         toast({
-          title: "Account Created",
-          description: "Please check your email to confirm your account. You'll be able to access the app after confirmation.",
+          title: "Success",
+          description: "Account created successfully! Let's set up your profile.",
         });
-        navigate('/auth?mode=login');
+        navigate('/profile-setup');
       }
     } catch (err) {
       console.error('Registration error:', err);

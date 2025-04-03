@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const { login, isEmailConfirmed } = useAuth();
+  const { login } = useAuth();
   const { toast } = useToast();
   const {
     register,
@@ -21,16 +21,6 @@ const LoginForm = () => {
   const onSubmit = async (data) => {
     try {
       await login(data.email, data.password);
-      
-      if (!isEmailConfirmed()) {
-        toast({
-          variant: "destructive",
-          title: "Email Not Confirmed",
-          description: "Please check your email and confirm your account before logging in.",
-        });
-        return;
-      }
-
       toast({
         title: "Success",
         description: "Welcome back!",
