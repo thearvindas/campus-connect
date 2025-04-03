@@ -24,28 +24,39 @@ export function AuthProvider({ children }) {
   }, []);
 
   const register = async (email, password, name) => {
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    try {
+      // Sign up the user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-    if (authError) throw authError;
+      if (authError) throw authError;
 
-    // After successful signup, store user profile data
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert([
-        {
-          id: authData.user.id,
-          email: email,
-          full_name: name,
-          created_at: new Date().toISOString(),
-        }
-      ]);
+      // Create the profile even if email is not confirmed
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: authData.user.id,
+            email: email,
+            full_name: name,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ]);
 
-    if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        throw new Error('Failed to create profile. Please try again.');
+      }
 
-    return authData;
+      // Set the user in state even if email is not confirmed
+      setUser(authData.user);
+      return authData;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const login = async (email, password) => {

@@ -25,8 +25,8 @@ const RegisterForm = () => {
     try {
       await registerUser(data.email, data.password, data.name);
       toast({
-        title: "Success",
-        description: "Account created successfully! Please complete your profile.",
+        title: "Account Created",
+        description: "Welcome! Please check your email to confirm your account. Meanwhile, let's set up your profile.",
       });
       navigate('/profile-setup');
     } catch (err) {

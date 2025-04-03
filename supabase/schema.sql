@@ -75,12 +75,26 @@ CREATE POLICY "Users can view all study sessions" ON study_sessions
 CREATE POLICY "Users can create study sessions" ON study_sessions
   FOR INSERT WITH CHECK (auth.uid() = creator_id);
 
-CREATE POLICY "Public profiles are viewable by everyone." ON profiles FOR SELECT USING (true);
-CREATE POLICY "Users can insert their own profile." ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "Users can update own profile." ON profiles FOR UPDATE USING (auth.uid() = id);
+-- Drop existing policies for profiles if they exist
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON profiles;
+DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON profiles;
+DROP POLICY IF EXISTS "Enable update for users based on id" ON profiles;
+
+-- Create new policies for profiles
+CREATE POLICY "Profiles are viewable by everyone"
+ON profiles FOR SELECT
+USING (true);
+
+CREATE POLICY "Users can create their own profile"
+ON profiles FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL);
+
+CREATE POLICY "Users can update their own profile"
+ON profiles FOR UPDATE
+USING (auth.uid() = id);
 
 -- Create an index on email
-CREATE INDEX profiles_email_idx ON profiles (email);
+CREATE INDEX IF NOT EXISTS profiles_email_idx ON profiles (email);
 
 -- Function to handle updating timestamps
 CREATE OR REPLACE FUNCTION handle_updated_at()
