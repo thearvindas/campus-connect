@@ -29,11 +29,16 @@ export function AuthProvider({ children }) {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: name,
+          },
+        },
       });
 
       if (authError) throw authError;
 
-      // Create the profile even if email is not confirmed
+      // Create the profile
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([
@@ -44,16 +49,15 @@ export function AuthProvider({ children }) {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }
-        ]);
+        ])
+        .select();
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
         throw new Error('Failed to create profile. Please try again.');
       }
 
-      // Set the user in state even if email is not confirmed
-      setUser(authData.user);
-      return authData;
+      return { user: authData.user, session: authData.session };
     } catch (error) {
       throw error;
     }
@@ -96,6 +100,10 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const isEmailConfirmed = () => {
+    return user?.email_confirmed_at || user?.confirmed_at;
+  };
+
   const value = {
     user,
     loading,
@@ -103,7 +111,8 @@ export function AuthProvider({ children }) {
     login,
     logout,
     getUserProfile,
-    updateUserProfile
+    updateUserProfile,
+    isEmailConfirmed
   };
 
   return (

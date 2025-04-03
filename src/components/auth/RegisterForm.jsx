@@ -23,12 +23,15 @@ const RegisterForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      await registerUser(data.email, data.password, data.name);
-      toast({
-        title: "Account Created",
-        description: "Welcome! Please check your email to confirm your account. Meanwhile, let's set up your profile.",
-      });
-      navigate('/profile-setup');
+      const { user } = await registerUser(data.email, data.password, data.name);
+      
+      if (user) {
+        toast({
+          title: "Account Created",
+          description: "Please check your email to confirm your account. You'll be able to access the app after confirmation.",
+        });
+        navigate('/auth?mode=login');
+      }
     } catch (err) {
       console.error('Registration error:', err);
       toast({
