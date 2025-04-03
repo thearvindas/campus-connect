@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { login } = useAuth();
   const { toast } = useToast();
   const {
     register,
@@ -20,10 +20,10 @@ const LoginForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      await signIn(data.email, data.password);
+      await login(data.email, data.password);
       toast({
         title: "Success",
-        description: "Successfully logged in!",
+        description: "Welcome back!",
       });
       navigate('/home');
     } catch (err) {
@@ -31,16 +31,16 @@ const LoginForm = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: err.message || 'Failed to log in',
+        description: err.message || 'Failed to sign in',
       });
     }
   };
 
   return (
     <motion.form
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-4"
     >
@@ -49,7 +49,7 @@ const LoginForm = () => {
         <Input
           id="email"
           type="email"
-          placeholder="name@example.com"
+          placeholder="m@example.com"
           {...register("email", {
             required: "Email is required",
             pattern: {
@@ -69,11 +69,7 @@ const LoginForm = () => {
           id="password"
           type="password"
           {...register("password", {
-            required: "Password is required",
-            minLength: {
-              value: 6,
-              message: "Password must be at least 6 characters"
-            }
+            required: "Password is required"
           })}
         />
         {errors.password && (
@@ -81,9 +77,13 @@ const LoginForm = () => {
         )}
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={isSubmitting}
+      >
         {isSubmitting ? (
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
             <svg
               className="animate-spin h-4 w-4"
               xmlns="http://www.w3.org/2000/svg"
@@ -104,10 +104,10 @@ const LoginForm = () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            Logging in...
+            Signing in...
           </div>
         ) : (
-          'Login'
+          'Sign In'
         )}
       </Button>
     </motion.form>

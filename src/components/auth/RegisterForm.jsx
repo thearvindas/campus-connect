@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,7 @@ const RegisterForm = () => {
       await registerUser(data.email, data.password, data.name);
       toast({
         title: "Success",
-        description: "Account created successfully!",
+        description: "Account created successfully! Please complete your profile.",
       });
       navigate('/profile-setup');
     } catch (err) {

@@ -1,12 +1,13 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export default function Navbar() {
+const Navbar = () => {
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   
   const navItems = [
     { path: "/", label: "Home" },
@@ -14,6 +15,15 @@ export default function Navbar() {
     { path: "/connections", label: "Connections" },
     { path: "/profile/edit", label: "Profile" },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -46,7 +56,7 @@ export default function Navbar() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={signOut}
+              onClick={handleLogout}
               className="text-muted-foreground hover:text-foreground"
             >
               Sign out
@@ -56,4 +66,6 @@ export default function Navbar() {
       </div>
     </nav>
   );
-} 
+};
+
+export default Navbar; 
